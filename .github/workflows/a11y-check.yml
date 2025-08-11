@@ -25,23 +25,28 @@ jobs:
       - name: Convert accessibility-report.json to HTML
         run: node generate-html-report.js
 
-      - name: Get PR author GitHub noreply email
+      - name: Get pusher email from last commit
         id: get_email
         run: |
-          USERNAME=${{ github.event.pull_request.user.login }}
-          USER_ID=${{ github.event.pull_request.user.id }}
-          EMAIL="${USER_ID}+${USERNAME}@users.noreply.github.com"
+          EMAIL=$(git log -1 --pretty=format:'%ae')
           echo "email=$EMAIL" >> $GITHUB_OUTPUT
 
-      - name: Send accessibility report email to PR author
+      - name: Read accessibility report HTML
+        id: read_report
+        run: |
+          echo "HTML_BODY<<EOF" >> $GITHUB_ENV
+          cat accessibility-report.html >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Send accessibility report email to pusher
         uses: dawidd6/action-send-mail@v3
         with:
-          server_address: ${{ secrets.SMTP_SERVER }}
-          server_port: ${{ secrets.SMTP_PORT }}
-          username: ${{ secrets.SMTP_USERNAME }}
+          server_address: smtp.gmail.com          # hardcoded for testing
+          server_port: 465                        # SMTP SSL port
+          username: ${{ secrets.SMTP_USERNAME }} # or hardcode for testing
           password: ${{ secrets.SMTP_PASSWORD }}
-          subject: Accessibility Report for PR #${{ github.event.pull_request.number }}
+          subject: Accessibility Report for Latest Push
           to: ${{ steps.get_email.outputs.email }}
           from: Accessibility Bot <${{ secrets.SMTP_USERNAME }}>
-          html_body: |
-            $(cat accessibility-report.html)
+          html_body: ${{ env.HTML_BODY }}
+
