@@ -43,5 +43,5 @@ jobs:
           subject: Accessibility Report for Latest Push
           to: ${{ steps.get_email.outputs.email }}
           from: Accessibility Bot <${{ secrets.SMTP_USERNAME }}>
-          html_body: ${{ "Hello world" }}
+          html_body: "<p>hello world</p>"
 
