@@ -1,8 +1,9 @@
 name: Accessibility Check on PR
 
 on:
-  pull_request:
-    branches: [main]
+  push:
+    branches:
+      - main
 
 jobs:
   accessibility:
