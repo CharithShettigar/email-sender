@@ -36,18 +36,19 @@ jobs:
         shell: bash
         run: |
           {
-            echo "HTML_BODY<<EOT"
+            echo "HTML_BODY<<MY_DELIM"
             cat accessibility-report.html
-            echo "EOT"
+            echo "MY_DELIM"
           } >> $GITHUB_ENV
 
 
       - name: Send accessibility report email to pusher
-        uses: dawidd6/action-send-mail@v3
+        uses: dawidd6/action-send-mail@v6
         with:
-          server_address: smtp.gmail.com          # hardcoded for testing
-          server_port: 465                        # SMTP SSL port
-          username: ${{ secrets.SMTP_USERNAME }} # or hardcode for testing
+          server_address: smtp.gmail.com
+          server_port: 465
+          secure: true
+          username: ${{ secrets.SMTP_USERNAME }}
           password: ${{ secrets.SMTP_PASSWORD }}
           subject: Accessibility Report for Latest Push
           to: ${{ steps.get_email.outputs.email }}
