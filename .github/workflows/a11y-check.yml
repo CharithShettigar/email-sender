@@ -31,16 +31,6 @@ jobs:
           EMAIL=$(git log -1 --pretty=format:'%ae')
           echo "email=$EMAIL" >> $GITHUB_OUTPUT
 
-      - name: Read accessibility report HTML
-        id: read_report
-        shell: bash
-        run: |
-          {
-            echo "HTML_BODY<<MY_DELIM"
-            cat accessibility-report.html
-            echo "MY_DELIM"
-          } >> $GITHUB_ENV
-
 
       - name: Send accessibility report email to pusher
         uses: dawidd6/action-send-mail@v6
@@ -53,5 +43,5 @@ jobs:
           subject: Accessibility Report for Latest Push
           to: ${{ steps.get_email.outputs.email }}
           from: Accessibility Bot <${{ secrets.SMTP_USERNAME }}>
-          html_body: ${{ env.HTML_BODY }}
+          html_body: ${{ "Hello world" }}
 
