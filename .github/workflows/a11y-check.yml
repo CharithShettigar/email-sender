@@ -34,9 +34,11 @@ jobs:
       - name: Read accessibility report HTML
         id: read_report
         run: |
-          echo "HTML_BODY<<EOF" >> $GITHUB_ENV
-          cat accessibility-report.html >> $GITHUB_ENV
-          echo "EOF" >> $GITHUB_ENV
+          {
+            echo "HTML_BODY<<EOF"
+            cat accessibility-report.html
+            echo "EOF"
+          } >> $GITHUB_ENV
 
       - name: Send accessibility report email to pusher
         uses: dawidd6/action-send-mail@v3
