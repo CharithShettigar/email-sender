@@ -1,0 +1,46 @@
+name: Accessibility Check on PR
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  accessibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run accessibility check
+        run: node run-accessibility-check.js
+
+      - name: Convert accessibility-report.json to HTML
+        run: node generate-html-report.js
+
+      - name: Get PR author GitHub noreply email
+        id: get_email
+        run: |
+          USERNAME=${{ github.event.pull_request.user.login }}
+          USER_ID=${{ github.event.pull_request.user.id }}
+          EMAIL="${USER_ID}+${USERNAME}@users.noreply.github.com"
+          echo "email=$EMAIL" >> $GITHUB_OUTPUT
+
+      - name: Send accessibility report email to PR author
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_SERVER }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USERNAME }}
+          password: ${{ secrets.SMTP_PASSWORD }}
+          subject: Accessibility Report for PR #${{ github.event.pull_request.number }}
+          to: ${{ steps.get_email.outputs.email }}
+          from: Accessibility Bot <${{ secrets.SMTP_USERNAME }}>
+          html_body: |
+            $(cat accessibility-report.html)
